@@ -43,13 +43,63 @@ FROM OPENROWSET(
 We instructed the serverless SQL pool to connect to the covid database in the Azure Cosmos DB account MyCosmosDbAccount authenticated by using the Azure Cosmos DB key (the dummy in the preceding example). We then accessed the Ecdc container's analytical store in the West US 2 region. Since there's no projection of specific properties, the OPENROWSET function will return all properties from the Azure Cosmos DB items.
 
 
-### 2. Explore data from the other container in the same Azure Cosmos DB database, you can use the same connection string and reference the required container as the third parameter:
-
+### Explore data from the other container in the same Azure Cosmos DB database, you can use the same connection string and reference the required container as the third parameter:
+ ### OPENROWSET with key
 > SELECT TOP 10 *
 FROM OPENROWSET( 
        'CosmosDB',
        'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
        Cord19) as cord19
+
+### 2. Explicitly specify schema
+
+The data from the ECDC COVID dataset is in following structure into Azure Cosmos DB:
+
+> {"date_rep":"2020-08-13","cases":254,"countries_and_territories":"Serbia","geo_id":"RS"}
+{"date_rep":"2020-08-12","cases":235,"countries_and_territories":"Serbia","geo_id":"RS"}
+{"date_rep":"2020-08-11","cases":163,"countries_and_territories":"Serbia","geo_id":"RS"}
+
+ ### OPENROWSET with key
+> SELECT TOP 10 *
+FROM OPENROWSET(
+      'CosmosDB',
+      'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
+       Ecdc
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+ 
+ ### OPENROWSET with credential
+
+> /*  Setup - create server-level or database scoped credential with Azure Cosmos DB account key:
+    CREATE CREDENTIAL MyCosmosDbAccountCredential
+    WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
+*/
+SELECT TOP 10 *
+FROM OPENROWSET(
+      PROVIDER = 'CosmosDB',
+      CONNECTION = 'Account=synapselink-cosmosdb-sqlsample;Database=covid',
+      OBJECT = 'Ecdc',
+      SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+    
+ 
+    
+ ### 3. Creating view on top of your Azure Cosmos DB data
+ 
+ > CREATE CREDENTIAL MyCosmosDbAccountCredential
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
+GO
+CREATE OR ALTER VIEW Ecdc
+AS SELECT *
+FROM OPENROWSET(
+      PROVIDER = 'CosmosDB',
+      CONNECTION = 'Account=synapselink-cosmosdb-sqlsample;Database=covid',
+      OBJECT = 'Ecdc',
+      SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+ 
+ 
+       
+
        
   
 
