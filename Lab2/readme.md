@@ -5,7 +5,7 @@ The hypothetical scenario is Power Plant where signals from steam turbines are b
 
 In this Lab scenario, you will ingest streaming and batch IoT data into Azure Cosmos DB using Azure Synapse Spark, perform Joins and aggregations using Azure Synapse Link and perform [anomaly detection](https://azure.microsoft.com/services/cognitive-services/anomaly-detector/) using Azure Cognitive Services on Spark (MMLSpark).
 
-![IoT-components-dataflow](images/dataflow.PNG)
+![upload_datasets](images/dataflow.PNG)
 
 ## Environment setup
 
