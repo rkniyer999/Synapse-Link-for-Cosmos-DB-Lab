@@ -1,0 +1,11 @@
+id,rotortype,Latitude,deviceid,Longitude,devicetype,Location
+"7a9affa2-eb2c-43de-887a-68580da34f41",Drum,43.7315236,dev-5,-79.6083704,impulse-reaction turbine,"Toronto, Ontario"
+"7a9affa2-eb2c-43de-887a-68580da34f42",Welded Disc,35.14414333,dev-6,-90.04617767000001,impulse turbine,"Memphis, TN"
+"7a9affa2-eb2c-43de-887a-68580da34f43",Drum,40.7142,dev-1,-74.0064,impulse turbine,"Manhattan, NY"
+"7a9affa2-eb2c-43de-887a-68580da34f44",Drum,29.73222,dev-4,-95.38751999999999,impulse turbine,"Houston, TX"
+"7a9affa2-eb2c-43de-887a-68580da34f45",Welded Disc,41.87864,dev-3,-87.64024999999999,impulse turbine,"Chicago, IL"
+"7a9affa2-eb2c-43de-887a-68580da34f46",Welded Disc,33.9442368,dev-2,-118.3975983,impulse-reaction turbine,"Los Angeles, CA"
+"7a9affa2-eb2c-43de-887a-68580da34f47",Welded Disc,34.01122614,dev-10,-118.49943638,impulse turbine,"Santa Monica, CA"
+"7a9affa2-eb2c-43de-887a-68580da34f48",Welded Disc,38.4756088,dev-7,-121.4312363,impulse-reaction turbine,"Sacramento, CA"
+"7a9affa2-eb2c-43de-887a-68580da34f49",Welded Disc,35.1071069,dev-8,-106.572767,impulse turbine,"Albuquerque, NM"
+"7a9affa2-eb2c-43de-887a-68580da34f50",Welded Disc,38.2289,dev-9,-85.7495,impulse-reaction turbine,"Louisville, KY"
