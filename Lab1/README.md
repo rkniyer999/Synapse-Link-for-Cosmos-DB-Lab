@@ -30,8 +30,11 @@ FROM OPENROWSET(
  ### OPENROWSET with credential
 
 > /*  Setup - create server-level or database scoped credential with Azure Cosmos DB account key:
+
+
     CREATE CREDENTIAL MyCosmosDbAccountCredential
     WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
+
 */ 
 > SELECT TOP 10 *
 FROM OPENROWSET(
@@ -76,7 +79,7 @@ FROM OPENROWSET(
       'CosmosDB',
       'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
        Ecdc
-    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(20) ) as rows
  
  ### OPENROWSET with credential
 
