@@ -6,6 +6,7 @@
 - Enable analytical store on your Azure Cosmos DB containers.
 - Get the connection string with a read-only key that you will use to query analytical store.
 - Get the read-only key that will be used to access the Azure Cosmos DB container
+- Create [Azure Synapse workspace](https://docs.microsoft.com/azure/synapse-analytics/quickstart-create-workspace) in West US 2
 
 
 ### Sample dataset
@@ -45,7 +46,7 @@ We instructed the serverless SQL pool to connect to the covid database in the Az
 # Azure Cosmos DB to SQL type mappings
 Although Azure Cosmos DB transactional store is schema-agnostic, the analytical store is schematized to optimize for analytical query performance.
 The following table shows the SQL column types that should be used for different property types in Azure Cosmos DB.
-![upload_datasets](/images/CosmosDB_SQLtypemappings.jpg)
+![Cosmos SQL](/images/CosmosDB_SQLtypemappings.jpg)
 
 
 
@@ -61,9 +62,13 @@ FROM OPENROWSET(
 
 The data from the ECDC COVID dataset is in following structure into Azure Cosmos DB:
 
-> {"date_rep":"2020-08-13","cases":254,"countries_and_territories":"Serbia","geo_id":"RS"}
+ ```yaml
+{"date_rep":"2020-08-13","cases":254,"countries_and_territories":"Serbia","geo_id":"RS"}
 {"date_rep":"2020-08-12","cases":235,"countries_and_territories":"Serbia","geo_id":"RS"}
 {"date_rep":"2020-08-11","cases":163,"countries_and_territories":"Serbia","geo_id":"RS"}
+```
+
+
 
  ### OPENROWSET with key
 > SELECT TOP 10 *
@@ -102,6 +107,34 @@ FROM OPENROWSET(
       OBJECT = 'Ecdc',
       SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
     ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+    
+ ### 4. How to query nested objects
+  CORD-19 dataset has JSON documents that follow this structure:
+  ```yaml
+  {
+    "paper_id": <str>,                   # 40-character sha1 of the PDF
+    "metadata": {
+        "title": <str>,
+        "authors": <array of objects>    # list of author dicts, in order
+        ...
+     }
+     ...
+}
+```
+You can specify the paths to nested values in the objects when you use the WITH clause.
+> SELECT TOP 10 *
+FROM OPENROWSET( 
+       'CosmosDB',
+       'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
+       Cord19)
+WITH (  paper_id    varchar(8000),
+        title        varchar(1000) '$.metadata.title',
+        metadata     varchar(max),
+        authors      varchar(max) '$.metadata.authors'
+) AS docs;
+
+
+
  
  
        
