@@ -42,6 +42,12 @@ FROM OPENROWSET(
        
 We instructed the serverless SQL pool to connect to the covid database in the Azure Cosmos DB account MyCosmosDbAccount authenticated by using the Azure Cosmos DB key (the dummy in the preceding example). We then accessed the Ecdc container's analytical store in the West US 2 region. Since there's no projection of specific properties, the OPENROWSET function will return all properties from the Azure Cosmos DB items.
 
+# Azure Cosmos DB to SQL type mappings
+Although Azure Cosmos DB transactional store is schema-agnostic, the analytical store is schematized to optimize for analytical query performance.
+The following table shows the SQL column types that should be used for different property types in Azure Cosmos DB.
+![upload_datasets](/images/CosmosDB_SQLtypemappings.jpg)
+
+
 
 ### Explore data from the other container in the same Azure Cosmos DB database, you can use the same connection string and reference the required container as the third parameter:
  ### OPENROWSET with key
