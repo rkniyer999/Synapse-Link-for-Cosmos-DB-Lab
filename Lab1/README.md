@@ -20,28 +20,34 @@ The examples in this article are based on data from the [European Centre for Dis
 ### 1. Explore Azure Cosmos DB data with automatic schema inference
 
  ### OPENROWSET with key
-> SELECT TOP 10 *
+ 
+``` sql
+ SELECT TOP 10 *
 FROM OPENROWSET( 
        'CosmosDB',
        'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
        Ecdc) as documents
+ ``` 
  
  ### OPENROWSET with credential
+  Setup - create server-level or database scoped credential with Azure Cosmos DB account key:
 
-> /*  Setup - create server-level or database scoped credential with Azure Cosmos DB account key:
-
-
+``` sql
     CREATE CREDENTIAL MyCosmosDbAccountCredential
     WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
+```
 
-*/ 
-> SELECT TOP 10 *
+
+``` sql
+  SELECT TOP 10 *
 FROM OPENROWSET(
       PROVIDER = 'CosmosDB',
       CONNECTION = 'Account=synapselink-cosmosdb-sqlsample;Database=covid',
       OBJECT = 'Ecdc',
       SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
     ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+    
+``` 
        
 We instructed the serverless SQL pool to connect to the covid database in the Azure Cosmos DB account MyCosmosDbAccount authenticated by using the Azure Cosmos DB key (the dummy in the preceding example). We then accessed the Ecdc container's analytical store in the West US 2 region. Since there's no projection of specific properties, the OPENROWSET function will return all properties from the Azure Cosmos DB items.
 
@@ -54,11 +60,16 @@ The following table shows the SQL column types that should be used for different
 
 ### Explore data from the other container in the same Azure Cosmos DB database, you can use the same connection string and reference the required container as the third parameter:
  ### OPENROWSET with key
-> SELECT TOP 10 *
+
+
+``` sql
+SELECT TOP 10 *
 FROM OPENROWSET( 
        'CosmosDB',
        'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
        Cord19) as cord19
+       
+```
 
 ### 2. Explicitly specify schema
 
@@ -73,22 +84,30 @@ The data from the ECDC COVID dataset is in following structure into Azure Cosmos
 
 
  ### OPENROWSET with key
-> SELECT TOP 10 *
+
+``` sql
+SELECT TOP 10 *
 FROM OPENROWSET(
       'CosmosDB',
       'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
        Ecdc
     ) with ( date_rep varchar(20), cases bigint, geo_id varchar(20) ) as rows
  
+``` 
+
  ### OPENROWSET with credential
 
-> /*  Setup - create server-level or database scoped credential with Azure Cosmos DB account key: (If not created in previous step)
+  Setup - create server-level or database scoped credential with Azure Cosmos DB account key: (If not created in previous step)
 
 
+``` sql
     CREATE CREDENTIAL MyCosmosDbAccountCredential
     WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
-*/
 
+```
+
+
+``` sql
 SELECT TOP 10 *
 FROM OPENROWSET(
       PROVIDER = 'CosmosDB',
@@ -96,12 +115,14 @@ FROM OPENROWSET(
       OBJECT = 'Ecdc',
       SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
     ) with ( date_rep varchar(20), cases bigint, geo_id varchar(20) ) as rows
-    
+  
+```  
  
     
  ### 3. Creating view on top of your Azure Cosmos DB data
- 
- > CREATE OR ALTER VIEW Ecdc
+  
+``` sql
+CREATE OR ALTER VIEW Ecdc
 AS SELECT *
 FROM OPENROWSET(
       PROVIDER = 'CosmosDB',
@@ -109,9 +130,17 @@ FROM OPENROWSET(
       OBJECT = 'Ecdc',
       SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
     ) with ( date_rep varchar(20), cases bigint, geo_id varchar(20) ) as rows
+  
+  
+``` 
  
  Cross check if the view is created sucessfully or not.
+ 
+ 
+``` sql
  SELECT TOP (100) [date_rep],[cases],[geo_id] FROM [dbo].[Ecdc]
+ 
+``` 
     
  ### 4. How to query nested objects
   CORD-19 dataset has JSON documents that follow this structure:
@@ -127,7 +156,9 @@ FROM OPENROWSET(
 }
 ```
 You can specify the paths to nested values in the objects when you use the WITH clause.
-> SELECT TOP 10 *
+
+``` sql
+SELECT TOP 10 *
 FROM OPENROWSET( 
        'CosmosDB',
        'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
@@ -138,6 +169,7 @@ WITH (  paper_id    varchar(8000),
         authors      varchar(max) '$.metadata.authors'
 ) AS docs;
 
+``` 
 
 
  
