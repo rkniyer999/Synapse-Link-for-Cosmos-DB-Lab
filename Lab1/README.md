@@ -1,5 +1,6 @@
  
  # Scenario - How to write a query with a serverless SQL pool that will query data from Azure Cosmos DB containers that are enabled with Azure Synapse Link. 
+ ![Cosmos SQL Mapping](/Lab1/images/adhocanalyticsscenario.jpg)
  
  ## Prerequisites
 - Make sure that you have prepared Analytical store
