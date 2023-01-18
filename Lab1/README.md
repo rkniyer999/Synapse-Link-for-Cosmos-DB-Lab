@@ -46,7 +46,7 @@ We instructed the serverless SQL pool to connect to the covid database in the Az
 # Azure Cosmos DB to SQL type mappings
 Although Azure Cosmos DB transactional store is schema-agnostic, the analytical store is schematized to optimize for analytical query performance.
 The following table shows the SQL column types that should be used for different property types in Azure Cosmos DB.
-![Cosmos SQL](/images/CosmosDB_SQLtypemappings.jpg)
+![Cosmos SQL Mapping](/Lab1/images/CosmosDB_SQLtypemappings.jpg)
 
 
 
