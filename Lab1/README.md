@@ -172,9 +172,47 @@ WITH (  paper_id    varchar(8000),
 
 ``` 
 
+ ### 5. How to flatten nested arrays
+  Data might have nested subarrays like the author's array from a CORD-19 dataset
+```yaml
+  {
+    "paper_id": <str>,                      # 40-character sha1 of the PDF
+    "metadata": {
+        "title": <str>,
+        "authors": [                        # list of author dicts, in order
+            {
+                "first": <str>,
+                "middle": <list of str>,
+                "last": <str>,
+                "suffix": <str>,
+                "affiliation": <dict>,
+                "email": <str>
+            },
+            ...
+        ],
+        ...
+}
+```
 
+ ``` sql
+ SELECT
+    *
+FROM
+    OPENROWSET(
+      'CosmosDB',
+      'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
+       Cord19
+    ) WITH ( title varchar(2000) '$.metadata.title',
+             authors varchar(max) '$.metadata.authors' ) AS docs
+      CROSS APPLY OPENJSON ( authors )
+                  WITH (
+                       first varchar(50),
+                       last varchar(50),
+                       affiliation nvarchar(max) as json
+                  ) AS a
  
- 
+ ```
+  A serverless SQL pool enables you to flatten nested structures by applying the OPENJSON function on the nested array
        
 
        
