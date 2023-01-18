@@ -9,14 +9,13 @@
 - Create [Azure Synapse workspace](https://docs.microsoft.com/azure/synapse-analytics/quickstart-create-workspace) in West US 2
 
 
-### Sample dataset
-The examples in this article are based on data from the [European Centre for Disease Prevention and Control (ECDC) COVID-19 Cases](https://learn.microsoft.com/en-us/azure/open-datasets/dataset-ecdc-covid-cases?tabs=azure-storage) and [COVID-19 Open Research Dataset (CORD-19), doi:10.5281/zenodo.3715505](https://learn.microsoft.com/en-us/azure/open-datasets/dataset-catalog)
-
 ### Pre-created Cosmos Container
 An Azure Cosmos DB database account that's Azure Synapse Link enabled.
 An Azure Cosmos DB database named covid.
 Two Azure Cosmos DB containers named Ecdc and Cord19 loaded with the preceding sample datasets.
 You can use the following connection string for testing purpose: Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==. Note that this connection will not guarantee performance because this account might be located in remote region compared to your Synapse SQL endpoint.
+### Sample dataset (Reference)
+The examples in this article are based on data from the [European Centre for Disease Prevention and Control (ECDC) COVID-19 Cases](https://learn.microsoft.com/en-us/azure/open-datasets/dataset-ecdc-covid-cases?tabs=azure-storage) and [COVID-19 Open Research Dataset (CORD-19), doi:10.5281/zenodo.3715505](https://learn.microsoft.com/en-us/azure/open-datasets/dataset-catalog)
 
 ### 1. Explore Azure Cosmos DB data with automatic schema inference
 
@@ -83,33 +82,36 @@ FROM OPENROWSET(
  
  ### OPENROWSET with credential
 
-> /*  Setup - create server-level or database scoped credential with Azure Cosmos DB account key:
+> /*  Setup - create server-level or database scoped credential with Azure Cosmos DB account key: (If not created in previous step)
+
+
     CREATE CREDENTIAL MyCosmosDbAccountCredential
     WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
 */
+
 SELECT TOP 10 *
 FROM OPENROWSET(
       PROVIDER = 'CosmosDB',
       CONNECTION = 'Account=synapselink-cosmosdb-sqlsample;Database=covid',
       OBJECT = 'Ecdc',
       SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
-    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(20) ) as rows
     
  
     
  ### 3. Creating view on top of your Azure Cosmos DB data
  
- > CREATE CREDENTIAL MyCosmosDbAccountCredential
-WITH IDENTITY = 'SHARED ACCESS SIGNATURE', SECRET = 's5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==';
-GO
-CREATE OR ALTER VIEW Ecdc
+ > CREATE OR ALTER VIEW Ecdc
 AS SELECT *
 FROM OPENROWSET(
       PROVIDER = 'CosmosDB',
       CONNECTION = 'Account=synapselink-cosmosdb-sqlsample;Database=covid',
       OBJECT = 'Ecdc',
       SERVER_CREDENTIAL = 'MyCosmosDbAccountCredential'
-    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(6) ) as rows
+    ) with ( date_rep varchar(20), cases bigint, geo_id varchar(20) ) as rows
+ 
+ Cross check if the view is created sucessfully or not.
+ SELECT TOP (100) [date_rep],[cases],[geo_id] FROM [dbo].[Ecdc]
     
  ### 4. How to query nested objects
   CORD-19 dataset has JSON documents that follow this structure:
@@ -131,7 +133,7 @@ FROM OPENROWSET(
        'Account=synapselink-cosmosdb-sqlsample;Database=covid;Key=s5zarR2pT0JWH9k8roipnWxUYBegOuFGjJpSjGlR36y86cW0GQ6RaaG8kGjsRAQoWMw1QKTkkX8HQtFpJjC8Hg==',
        Cord19)
 WITH (  paper_id    varchar(8000),
-        title        varchar(1000) '$.metadata.title',
+        title        varchar(2000) '$.metadata.title',
         metadata     varchar(max),
         authors      varchar(max) '$.metadata.authors'
 ) AS docs;
